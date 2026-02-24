@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUKUNA X DYBY SHOP ENTERPRISE - SHOP</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* =========================================
+           © 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝙳𝙴𝚅 𝙳𝚈𝙱𝚈
+           ========================================= */
+        :root {
+            /* Thème Clair (Bleu et Blanc) */
+            --bg-color: #f8fafc;
+            --nav-bg: #ffffff;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary-blue: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-gradient: linear-gradient(135deg, #2563eb, #3b82f6);
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        /* Thème Sombre (Dark Mode) */
+        body.dark-mode {
+            --bg-color: #0f172a;
+            --nav-bg: #1e293b;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary-blue: #3b82f6;
+            --primary-hover: #60a5fa;
+            --border-color: #334155;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
+        }
+
+        /* =========================================
+           STYLES GÉNERAUX
+           ========================================= */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            transition: var(--transition);
+        }
+
+        /* Barre de navigation */
+        nav {
+            background-color: var(--nav-bg);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary-blue); display: flex; align-items: center; gap: 10px; }
+        .nav-actions { display: flex; align-items: center; gap: 15px; }
+
+        button {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        button:hover { background-color: var(--primary-hover); }
+
+        .btn-icon {
+            background: transparent;
+            color: var(--text-main);
+            font-size: 1.2rem;
+            padding: 8px;
+        }
+        .btn-icon:hover { background: var(--border-color); color: var(--primary-blue); }
+
+        /* Conteneur principal */
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .header-title { text-align: center; margin-bottom: 2rem; }
+        .header-title h1 { font-size: 2.5rem; color: var(--primary-blue); }
+
+        /* Grille des produits */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .product-card:hover { transform: translateY(-5px); border-color: var(--primary-blue); box-shadow: var(--shadow-lg); }
+        .product-price { font-size: 1.8rem; font-weight: bold; color: var(--text-main); }
+        .product-desc { color: var(--text-muted); line-height: 1.5; flex-grow: 1; }
+        .product-img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color); }
+        
+        /* =========================================
+           MODALS (POPUPS) & AUTHENTIFICATION
+           ========================================= */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Modal Auth Spécifique (Plus Beau) */
+        .auth-modal-content {
+            background-color: var(--card-bg);
+            padding: 2.5rem 2rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            animation: slideUp 0.4s ease;
+            overflow: hidden;
+        }
+
+        /* Ligne de décoration en haut du modal */
+        .auth-modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: var(--primary-gradient);
+        }
+
+        .close-modal-btn {
+            position: absolute;
+            top: 15px; right: 15px;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            padding: 5px;
+            border-radius: 50%;
+        }
+        .close-modal-btn:hover { background: var(--border-color); color: var(--text-main); }
+
+        .auth-header { text-align: center; margin-bottom: 2rem; }
+        .auth-header h2 { font-size: 1.8rem; color: var(--text-main); margin-bottom: 0.5rem; }
+        .auth-header p { color: var(--text-muted); font-size: 0.95rem; }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.2rem;
+        }
+        .input-group i {
+            position: absolute;
+            left: 15px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        .input-group input:focus { outline: none; border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .input-group input:focus + i { color: var(--primary-blue); }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.1rem;
+            border-radius: 10px;
+            background: var(--primary-gradient);
+            margin-top: 10px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4); }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+        .auth-switch a { color: var(--primary-blue); font-weight: 600; text-decoration: none; transition: var(--transition); }
+        .auth-switch a:hover { text-decoration: underline; }
+
+        /* =========================================
+           LOADING ANIMATIONS (SPINNERS)
+           ========================================= */
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid var(--border-color);
+            border-left-color: var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+            pointer-events: none;
+        }
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            left: 50%; top: 50%;
+            width: 20px; height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-left-color: #fff;
+            transform: translate(-50%, -50%);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .loading-container { text-align: center; grid-column: 1 / -1; padding: 3rem; }
+        .loading-container p { margin-top: 1rem; color: var(--text-muted); font-weight: 500; }
+
+        /* Notifications (Basique conservé) */
+        .notification-item { padding: 1rem; border-bottom: 1px solid var(--border-color); }
+        .notification-item:last-child { border-bottom: none; }
+        .notification-title { font-weight: bold; color: var(--primary-blue); }
+        .notification-date { font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; }
+        .bell-wrapper { position: relative; }
+        .badge {
+            position: absolute; top: 0; right: 0;
+            background: #ef4444; color: white;
+            font-size: 0.6rem; padding: 2px 6px;
+            border-radius: 50%; font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Barre de navigation -->
+<nav>
+    <div class="logo">
+        <i class="fa-solid fa-robot"></i> S D ENTERPRISE 
+    </div>
+    <div class="nav-actions">
+        <button id="theme-toggle" class="btn-icon" onclick="toggleTheme()">
+            <i class="fa-solid fa-moon"></i>
+        </button>
+        
+        <div class="bell-wrapper" id="notif-container" style="display: none;">
+            <button class="btn-icon" onclick="openModal('notif-modal')">
+                <i class="fa-solid fa-bell"></i>
+            </button>
+            <span class="badge" id="notif-badge">!</span>
+        </div>
+
+        <button id="auth-btn" onclick="openModal('auth-modal')">Connexion</button>
+    </div>
+</nav>
+
+<!-- Contenu Principal -->
+<div class="container">
+    <div class="header-title">
+        <h1>Nos Fichiers & Bots</h1>
+        <p>Découvrez nos meilleurs outils pour propulser vos projets.</p>
+    </div>
+
+    <div class="products-grid" id="products-container">
+        <!-- Les produits ou le loading seront injectés ici en JS -->
+    </div>
+</div>
+
+<!-- Nouveau Modal d'Authentification (Login / Sign up) -->
+<div id="auth-modal" class="modal">
+    <div class="auth-modal-content">
+        <button class="close-modal-btn" onclick="closeModal('auth-modal')"><i class="fa-solid fa-xmark"></i></button>
+        
+        <div class="auth-header">
+            <h2 id="auth-title">Bon retour !</h2>
+            <p id="auth-subtitle">Connectez-vous pour continuer</p>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="username" placeholder="Nom d'utilisateur">
+            <i class="fa-solid fa-user"></i>
+        </div>
+        
+        <div class="input-group">
+            <input type="password" id="password" placeholder="Mot de passe (••••••••)">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+
+        <button id="submit-auth-btn" class="btn-submit" onclick="handleAuth()">Se connecter</button>
+        
+        <div class="auth-switch">
+            <span id="auth-switch-text">Pas encore de compte ?</span> 
+            <a href="#" onclick="toggleAuthMode()" id="auth-switch-link">S'inscrire</a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal des Notifications -->
+<div id="notif-modal" class="modal">
+    <div class="auth-modal-content" style="padding: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2 style="color: var(--text-main); font-size: 1.5rem;">Annonces Admin</h2>
+            <button class="close-modal-btn" style="position: static;" onclick="closeModal('notif-modal')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="notif-list" style="max-height: 300px; overflow-y: auto;">
+            <p style="text-align: center; color: var(--text-muted);">Aucune annonce pour le moment.</p>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================
+     JAVASCRIPT (LOGIQUE FRONTEND)
+     ========================================= -->
+<script>
+    // --- 1. GESTION DU DARK MODE ---
+    function initTheme() {
+        const isDark = localStorage.getItem('theme') === 'dark';
+        if (isDark) {
+            document.body.classList.add('dark-mode');
+            document.getElementById('theme-toggle').innerHTML = '<i class="fa-solid fa-sun"></i>';
+        }
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        
+        document.getElementById('theme-toggle').innerHTML = isDark 
+            ? '<i class="fa-solid fa-sun"></i>' 
+            : '<i class="fa-solid fa-moon"></i>';
+    }
+
+    // --- 2. GESTION DES MODALS ---
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // --- 3. GESTION DE L'AUTHENTIFICATION ---
+    let isLoginMode = true;
+
+    function toggleAuthMode() {
+        isLoginMode = !isLoginMode;
+        
+        // Mise à jour des textes dynamiquement avec le nouveau style
+        document.getElementById('auth-title').innerText = isLoginMode ? "Bon retour !" : "Créer un compte";
+        document.getElementById('auth-subtitle').innerText = isLoginMode ? "Connectez-vous pour continuer" : "Rejoignez-nous dès maintenant";
+        document.getElementById('submit-auth-btn').innerText = isLoginMode ? "Se connecter" : "S'inscrire";
+        document.getElementById('auth-switch-text').innerText = isLoginMode ? "Pas encore de compte ?" : "Vous avez déjà un compte ?";
+        document.getElementById('auth-switch-link').innerText = isLoginMode ? "S'inscrire" : "Se connecter";
+    }
+
+    async function handleAuth() {
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+        const endpoint = isLoginMode ? '/api/login' : '/api/signup';
+        const submitBtn = document.getElementById('submit-auth-btn');
+
+        if(!user || !pass) {
+            alert("Veuillez remplir tous les champs.");
+            return;
+        }
+
+        // Ajouter l'animation de chargement sur le bouton
+        submitBtn.classList.add('btn-loading');
+
+        try {
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: user, password: pass })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                alert(data.message);
+                if (isLoginMode) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('role', data.role);
+                    checkLoginStatus();
+                    closeModal('auth-modal');
+                } else {
+                    toggleAuthMode(); // Retour au login après inscription
+                }
+            } else {
+                alert("Erreur: " + data.error);
+            }
+        } catch (err) {
+            console.error(err);
+            // alert("Erreur de connexion au serveur."); // Décommentez pour tester en local sans backend
+            
+            // SIMULATION POUR VOS TESTS (Retirer en production)
+            setTimeout(() => {
+                alert(isLoginMode ? "Connecté avec succès (Simulation)" : "Inscrit avec succès (Simulation)");
+                closeModal('auth-modal');
+            }, 1000);
+        } finally {
+            // Retirer l'animation de chargement
+            submitBtn.classList.remove('btn-loading');
+        }
+    }
+
+    function checkLoginStatus() {
+        const token = localStorage.getItem('token');
+        const authBtn = document.getElementById('auth-btn');
+        const notifContainer = document.getElementById('notif-container');
+
+        if (token) {
+            authBtn.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Déconnexion';
+            authBtn.onclick = logout;
+            notifContainer.style.display = "block";
+            fetchNotifications();
+        } else {
+            authBtn.innerHTML = '<i class="fa-solid fa-user"></i> Connexion';
+            authBtn.onclick = () => openModal('auth-modal');
+            notifContainer.style.display = "none";
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        checkLoginStatus();
+    }
+
+    // --- 4. GESTION DES NOTIFICATIONS ---
+    async function fetchNotifications() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        try {
+            const res = await fetch('/api/notifications', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (res.ok) {
+                const notifs = await res.json();
+                const list = document.getElementById('notif-list');
+                const badge = document.getElementById('notif-badge');
+
+                if (notifs.length > 0) {
+                    badge.style.display = "block";
+                    list.innerHTML = notifs.map(n => `
+                        <div class="notification-item">
+                            <div class="notification-title">${n.title}</div>
+                            <div style="font-size: 0.9rem; margin-top: 5px;">${n.message}</div>
+                            <div class="notification-date">${new Date(n.date_created).toLocaleString('fr-FR')}</div>
+                        </div>
+                    `).join('');
+                }
+            }
+        } catch(err) {
+            console.log("Impossible de récupérer les notifications.");
+        }
+    }
+
+    // --- 5. CHARGEMENT RÉEL DES PRODUITS DEPUIS LA BDD ---
+    async function loadProducts() {
+        const container = document.getElementById('products-container');
+        
+        // Afficher le spinner de chargement
+        container.innerHTML = `
+            <div class="loading-container">
+                <div class="spinner"></div>
+                <p>Chargement des produits en cours...</p>
+            </div>
+        `;
+
+        try {
+            const res = await fetch('/api/products');
+            const products = await res.json();
+            
+            if(products.length === 0) {
+                container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Aucun produit disponible pour le moment.</p>`;
+                return;
+            }
+
+            container.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <img src="${p.image_url || 'https://via.placeholder.com/300x160?text=Pas+d+image'}" alt="${p.name}" class="product-img">
+                    <h2>${p.name}</h2>
+                    <p class="product-desc">${p.description}</p>
+                    <div class="product-price">$${p.price.toFixed(2)}</div>
+                    <button onclick="buyProduct('${p.id}')"><i class="fa-brands fa-paypal"></i> Acheter</button>
+                </div>
+            `).join('');
+        } catch (err) {
+            console.error("Erreur chargement produits:", err);
+            // Affichage de secours en cas d'erreur de serveur pendant vos tests
+            container.innerHTML = `
+                <div class="loading-container">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 2rem; color: #ef4444;"></i>
+                    <p>Impossible de charger les produits. Le serveur est injoignable.</p>
+                </div>
+            `;
+        }
+    }
+
+    function buyProduct(id) {
+        if(!localStorage.getItem('token')) {
+            alert("Veuillez vous connecter pour acheter.");
+            openModal('auth-modal');
+            return;
+        }
+        alert("Redirection vers PayPal pour le produit : " + id);
+    }
+
+    // --- INITIALISATION AU DÉMARRAGE ---
+    window.onload = () => {
+        initTheme();
+        checkLoginStatus();
+        loadProducts();
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: white; padding: 2rem; margin: 0; }
+        .container { max-width: 800px; margin: auto; background: #1e293b; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        h1, h2 { color: #3b82f6; margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        input[type="text"], input[type="number"], textarea { 
+            width: 100%; padding: 12px; margin-top: 8px; 
+            background: #0f172a; color: white; 
+            border: 1px solid #334155; border-radius: 8px; 
+            box-sizing: border-box; transition: all 0.3s;
+        }
+        input:focus, textarea:focus { outline: none; border-color: #3b82f6; }
+        
+        button { 
+            background: #3b82f6; color: white; border: none; 
+            padding: 12px 20px; cursor: pointer; border-radius: 8px; 
+            font-weight: bold; transition: all 0.3s; margin-top: 10px;
+        }
+        button:hover { background: #2563eb; transform: translateY(-2px); }
+        
+        .product-item { background: #0f172a; padding: 20px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #334155; transition: border 0.3s; }
+        .product-item:hover { border-color: #475569; }
+
+        /* =========================================
+           STYLE POUR L'UPLOAD DE FICHIER (ZIP)
+           ========================================= */
+        .file-upload-wrapper {
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        .file-upload-input {
+            display: none; /* Cache le bouton natif moche */
+        }
+        .file-upload-btn {
+            display: inline-block;
+            background: #475569;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px dashed #94a3b8;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .file-upload-btn:hover { background: #334155; border-color: #3b82f6; color: #3b82f6; }
+        .file-name-display {
+            display: block; margin-top: 5px; font-size: 0.85rem; color: #94a3b8; text-align: center;
+        }
+
+        /* =========================================
+           LOADING ANIMATIONS (SPINNERS)
+           ========================================= */
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid #334155; border-left-color: #3b82f6;
+            border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto;
+        }
+        .btn-loading { position: relative; color: transparent !important; pointer-events: none; }
+        .btn-loading::after {
+            content: ""; position: absolute; left: 50%; top: 50%; width: 20px; height: 20px;
+            border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-left-color: #fff;
+            transform: translate(-50%, -50%); animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .loading-container { text-align: center; padding: 2rem; }
+        .loading-container p { color: #94a3b8; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>⚙️ Panel Administrateur</h1>
+
+    <h2>📢 Envoyer une Annonce</h2>
+    <div class="form-group">
+        <input type="text" id="notif-title" placeholder="Titre de l'annonce">
+        <textarea id="notif-message" rows="3" placeholder="Message..."></textarea>
+        <button id="btn-send-notif" onclick="sendNotif()">Envoyer à tous</button>
+    </div>
+
+    <hr style="border-color: #334155; margin: 30px 0;">
+
+    <!-- SECTION : AJOUTER UN PRODUIT -->
+    <h2>➕ Ajouter un nouveau Bot/Produit</h2>
+    <div class="product-item" style="border-color: #3b82f6;">
+        <input type="text" id="new-id" placeholder="ID unique (ex: bot_v2) - Sans espace">
+        <input type="text" id="new-name" placeholder="Nom du Bot (ex: Bot Anti-Raid)">
+        <input type="number" id="new-price" placeholder="Prix en $ (ex: 12.50)" step="0.01">
+        <input type="text" id="new-image" placeholder="URL de l'image (Lien internet)">
+        
+        <!-- NOUVEAU BOUTON D'UPLOAD DE FICHIER -->
+        <div class="file-upload-wrapper">
+            <label for="new-file" class="file-upload-btn">
+                📁 Sélectionner le fichier ZIP
+            </label>
+            <input type="file" id="new-file" class="file-upload-input" accept=".zip,.rar,.7z" onchange="updateFileName(this, 'file-name-new')">
+            <span id="file-name-new" class="file-name-display">Aucun fichier sélectionné</span>
+        </div>
+
+        <textarea id="new-desc" rows="2" placeholder="Description du bot..."></textarea>
+        <button id="btn-add-product" onclick="addProduct()" style="width:100%;">➕ Ajouter le produit</button>
+    </div>
+
+    <hr style="border-color: #334155; margin: 30px 0;">
+
+    <h2>📦 Modifier les Produits existants</h2>
+    <div id="admin-products">
+        <!-- Les produits ou le chargement s'afficheront ici -->
+    </div>
+</div>
+
+<script>
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+
+    // Affichage dynamique du nom du fichier sélectionné
+    function updateFileName(input, displayId) {
+        const display = document.getElementById(displayId);
+        if (input.files && input.files.length > 0) {
+            display.textContent = "Fichier sélectionné : " + input.files[0].name;
+            display.style.color = "#10b981"; // Vert pour confirmer
+        } else {
+            display.textContent = "Aucun fichier sélectionné";
+            display.style.color = "#94a3b8"; // Gris par défaut
+        }
+    }
+
+    // --- Fonction pour envoyer une notification ---
+    async function sendNotif() {
+        const title = document.getElementById('notif-title').value;
+        const message = document.getElementById('notif-message').value;
+        const btn = document.getElementById('btn-send-notif');
+
+        if(!title || !message) return alert("Veuillez remplir tous les champs.");
+
+        btn.classList.add('btn-loading');
+
+        try {
+            const res = await fetch('/api/admin/notifications', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ title, message })
+            });
+            const data = await res.json();
+            alert(data.message || data.error);
+        } catch (err) {
+            setTimeout(() => alert("Notification envoyée avec succès (Simulation)"), 1000);
+        } finally {
+            btn.classList.remove('btn-loading');
+            document.getElementById('notif-title').value = '';
+            document.getElementById('notif-message').value = '';
+        }
+    }
+
+    // --- Fonction pour ajouter un produit (AVEC FICHIER ZIP) ---
+    async function addProduct() {
+        const btn = document.getElementById('btn-add-product');
+        const id = document.getElementById('new-id').value;
+        const name = document.getElementById('new-name').value;
+        const price = document.getElementById('new-price').value;
+        const image_url = document.getElementById('new-image').value;
+        const description = document.getElementById('new-desc').value;
+        const fileInput = document.getElementById('new-file');
+
+        if(!id || !name || !price) {
+            return alert("L'ID, le nom et le prix sont obligatoires.");
+        }
+
+        if(fileInput.files.length === 0) {
+            return alert("Veuillez obligatoirement sélectionner un fichier ZIP pour le produit.");
+        }
+
+        btn.classList.add('btn-loading');
+
+        // Création du FormData pour envoyer des textes ET des fichiers
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('name', name);
+        formData.append('price', price);
+        formData.append('image_url', image_url);
+        formData.append('description', description);
+        formData.append('file', fileInput.files[0]); // Ajout du fichier
+
+        try {
+            const res = await fetch('/api/admin/products/add', {
+                method: 'POST',
+                // ATTENTION: Avec FormData, on ne met PAS 'Content-Type': 'application/json'
+                // Le navigateur va générer lui-même le 'multipart/form-data'
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            
+            const data = await res.json();
+            alert(data.message || data.error);
+            if (data.success) {
+                loadAdminProducts(); 
+                document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = '');
+                updateFileName(fileInput, 'file-name-new'); // Reset le texte du fichier
+            }
+        } catch(err) {
+            console.error(err);
+            setTimeout(() => {
+                alert("Produit et Fichier uploadés avec succès (Simulation)");
+                document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = '');
+                updateFileName({files: []}, 'file-name-new'); // Simule le reset
+                loadAdminProducts();
+            }, 1000);
+        } finally {
+            btn.classList.remove('btn-loading');
+        }
+    }
+
+    // --- Fonction pour charger la liste des produits ---
+    async function loadAdminProducts() {
+        const container = document.getElementById('admin-products');
+        
+        container.innerHTML = `<div class="loading-container"><div class="spinner"></div><p>Chargement des produits...</p></div>`;
+
+        try {
+            const res = await fetch('/api/products');
+            const products = await res.json();
+            
+            if(products.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #94a3b8;">Aucun produit existant.</p>`;
+                return;
+            }
+
+            // On ajoute également l'option de changer le fichier ZIP lors d'une modification
+            container.innerHTML = products.map(p => `
+                <div class="product-item">
+                    <label style="color: #94a3b8; font-size: 0.8rem; font-weight: bold;">ID: ${p.id}</label>
+                    <input type="text" id="name-${p.id}" value="${p.name}" placeholder="Nom">
+                    <input type="number" id="price-${p.id}" value="${p.price}" step="0.01" placeholder="Prix">
+                    <input type="text" id="img-${p.id}" value="${p.image_url || ''}" placeholder="URL de l'image">
+                    
+                    <div class="file-upload-wrapper">
+                        <label for="edit-file-${p.id}" class="file-upload-btn" style="padding: 8px; font-size: 0.9rem;">
+                            📁 Remplacer le fichier ZIP (Optionnel)
+                        </label>
+                        <input type="file" id="edit-file-${p.id}" class="file-upload-input" accept=".zip,.rar,.7z" onchange="updateFileName(this, 'file-name-edit-${p.id}')">
+                        <span id="file-name-edit-${p.id}" class="file-name-display">L'ancien fichier sera conservé si ignoré.</span>
+                    </div>
+
+                    <textarea id="desc-${p.id}" placeholder="Description">${p.description}</textarea>
+                    <button id="btn-save-${p.id}" onclick="updateProduct('${p.id}')" style="background:#10b981;">💾 Sauvegarder</button>
+                </div>
+            `).join('');
+        } catch(err) {
+            container.innerHTML = `<div class="loading-container" style="color:#ef4444;"><p>⚠️ Impossible de charger les produits.</p></div>`;
+        }
+    }
+
+    // --- Fonction pour modifier un produit ---
+    async function updateProduct(id) {
+        const name = document.getElementById(`name-${id}`).value;
+        const price = document.getElementById(`price-${id}`).value;
+        const image_url = document.getElementById(`img-${id}`).value;
+        const description = document.getElementById(`desc-${id}`).value;
+        const fileInput = document.getElementById(`edit-file-${id}`);
+        
+        const btn = document.getElementById(`btn-save-${id}`);
+        btn.classList.add('btn-loading');
+
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('name', name);
+        formData.append('price', price);
+        formData.append('image_url', image_url);
+        formData.append('description', description);
+        
+        // Si l'admin a sélectionné un nouveau fichier pour ce produit, on l'ajoute
+        if(fileInput.files.length > 0) {
+            formData.append('file', fileInput.files[0]);
+        }
+
+        try {
+            const res = await fetch('/api/admin/products', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }, // Pas de 'Content-Type' avec FormData
+                body: formData
+            });
+            const data = await res.json();
+            alert(data.message || data.error);
+        } catch(err) {
+            setTimeout(() => alert("Produit sauvegardé (Simulation)"), 800);
+        } finally {
+            btn.classList.remove('btn-loading');
+        }
+    }
+
+    window.onload = loadAdminProducts;
+</script>
+</body>
+</html>
