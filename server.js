@@ -101,8 +101,8 @@ app.post('/api/buy', verifyToken, async (req, res) => {
     try {
         const order = await createOrder(
             product, 
-            'http://localhost:3000/success.html', // À créer plus tard (page de succès)
-            'http://localhost:3000/'
+            'https://dyby-x-sukuna-shop-production.up.railway.app/success.html', // À créer plus tard (page de succès)
+            'https://dyby-x-sukuna-shop-production.up.railway.app/'
         );
         res.json(order);
     } catch (error) { res.status(500).json({ error: error.message }); }
