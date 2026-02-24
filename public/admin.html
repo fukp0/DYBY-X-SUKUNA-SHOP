@@ -4,78 +4,63 @@
     <meta charset="UTF-8">
     <title>Admin Panel</title>
     <style>
+        /* [STYLES EXISTANTS CONSERVÉS] */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: white; padding: 2rem; margin: 0; }
         .container { max-width: 800px; margin: auto; background: #1e293b; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         h1, h2 { color: #3b82f6; margin-top: 0; }
         .form-group { margin-bottom: 15px; }
-        input[type="text"], input[type="number"], textarea { 
-            width: 100%; padding: 12px; margin-top: 8px; 
-            background: #0f172a; color: white; 
-            border: 1px solid #334155; border-radius: 8px; 
-            box-sizing: border-box; transition: all 0.3s;
-        }
+        input[type="text"], input[type="number"], input[type="password"], textarea { width: 100%; padding: 12px; margin-top: 8px; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 8px; box-sizing: border-box; transition: all 0.3s; }
         input:focus, textarea:focus { outline: none; border-color: #3b82f6; }
-        
-        button { 
-            background: #3b82f6; color: white; border: none; 
-            padding: 12px 20px; cursor: pointer; border-radius: 8px; 
-            font-weight: bold; transition: all 0.3s; margin-top: 10px;
-        }
+        button { background: #3b82f6; color: white; border: none; padding: 12px 20px; cursor: pointer; border-radius: 8px; font-weight: bold; transition: all 0.3s; margin-top: 10px; }
         button:hover { background: #2563eb; transform: translateY(-2px); }
-        
         .product-item { background: #0f172a; padding: 20px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #334155; transition: border 0.3s; }
         .product-item:hover { border-color: #475569; }
-
-        /* =========================================
-           STYLE POUR L'UPLOAD DE FICHIER (ZIP)
-           ========================================= */
-        .file-upload-wrapper {
-            margin-top: 10px;
-            margin-bottom: 5px;
-        }
-        .file-upload-input {
-            display: none; /* Cache le bouton natif moche */
-        }
-        .file-upload-btn {
-            display: inline-block;
-            background: #475569;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            border: 1px dashed #94a3b8;
-            width: 100%;
-            text-align: center;
-            box-sizing: border-box;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
+        .file-upload-wrapper { margin-top: 10px; margin-bottom: 5px; }
+        .file-upload-input { display: none; }
+        .file-upload-btn { display: inline-block; background: #475569; color: white; padding: 12px; border-radius: 8px; cursor: pointer; border: 1px dashed #94a3b8; width: 100%; text-align: center; box-sizing: border-box; transition: all 0.3s; font-weight: 500; }
         .file-upload-btn:hover { background: #334155; border-color: #3b82f6; color: #3b82f6; }
-        .file-name-display {
-            display: block; margin-top: 5px; font-size: 0.85rem; color: #94a3b8; text-align: center;
-        }
-
-        /* =========================================
-           LOADING ANIMATIONS (SPINNERS)
-           ========================================= */
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid #334155; border-left-color: #3b82f6;
-            border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto;
-        }
+        .file-name-display { display: block; margin-top: 5px; font-size: 0.85rem; color: #94a3b8; text-align: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #334155; border-left-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto; }
         .btn-loading { position: relative; color: transparent !important; pointer-events: none; }
-        .btn-loading::after {
-            content: ""; position: absolute; left: 50%; top: 50%; width: 20px; height: 20px;
-            border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-left-color: #fff;
-            transform: translate(-50%, -50%); animation: spin 1s linear infinite;
-        }
+        .btn-loading::after { content: ""; position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-left-color: #fff; transform: translate(-50%, -50%); animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .loading-container { text-align: center; padding: 2rem; }
         .loading-container p { color: #94a3b8; font-weight: 500; }
+
+        /* =========================================
+           STYLE DE L'ÉCRAN DE CONNEXION (LOCK SCREEN)
+           ========================================= */
+        #admin-lock-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .lock-card {
+            background: #1e293b; padding: 3rem 2rem; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center;
+            width: 90%; max-width: 400px;
+            border: 1px solid #334155;
+        }
+        .lock-card h2 { margin-bottom: 0.5rem; color: #f8fafc; font-size: 1.8rem; }
+        .lock-card p { color: #94a3b8; margin-bottom: 2rem; font-size: 0.95rem; }
+        .lock-input { text-align: center; font-size: 1.2rem; letter-spacing: 3px; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<!-- ÉCRAN DE VERROUILLAGE ADMIN -->
+<div id="admin-lock-screen">
+    <div class="lock-card">
+        <h2>🔒 Accès Sécurisé</h2>
+        <p>Veuillez entrer la clé d'administration.</p>
+        <input type="password" id="admin-pin" class="lock-input" placeholder="Mot de passe">
+        <button onclick="unlockAdmin()" style="width: 100%; padding: 14px; font-size: 1.1rem; margin-top: 20px;">Déverrouiller</button>
+    </div>
+</div>
+
+<div class="container" id="main-content" style="display: none;">
     <h1>⚙️ Panel Administrateur</h1>
 
     <h2>📢 Envoyer une Annonce</h2>
@@ -87,7 +72,6 @@
 
     <hr style="border-color: #334155; margin: 30px 0;">
 
-    <!-- SECTION : AJOUTER UN PRODUIT -->
     <h2>➕ Ajouter un nouveau Bot/Produit</h2>
     <div class="product-item" style="border-color: #3b82f6;">
         <input type="text" id="new-id" placeholder="ID unique (ex: bot_v2) - Sans espace">
@@ -95,11 +79,8 @@
         <input type="number" id="new-price" placeholder="Prix en $ (ex: 12.50)" step="0.01">
         <input type="text" id="new-image" placeholder="URL de l'image (Lien internet)">
         
-        <!-- NOUVEAU BOUTON D'UPLOAD DE FICHIER -->
         <div class="file-upload-wrapper">
-            <label for="new-file" class="file-upload-btn">
-                📁 Sélectionner le fichier ZIP
-            </label>
+            <label for="new-file" class="file-upload-btn">📁 Sélectionner le fichier ZIP</label>
             <input type="file" id="new-file" class="file-upload-input" accept=".zip,.rar,.7z" onchange="updateFileName(this, 'file-name-new')">
             <span id="file-name-new" class="file-name-display">Aucun fichier sélectionné</span>
         </div>
@@ -111,35 +92,61 @@
     <hr style="border-color: #334155; margin: 30px 0;">
 
     <h2>📦 Modifier les Produits existants</h2>
-    <div id="admin-products">
-        <!-- Les produits ou le chargement s'afficheront ici -->
-    </div>
+    <div id="admin-products"></div>
 </div>
 
 <script>
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
 
-    // Affichage dynamique du nom du fichier sélectionné
+    // 1. SÉCURITÉ JWT (Si l'utilisateur n'est pas connecté via la base de données)
+    if (!token || role !== 'admin') {
+        alert("Accès refusé ! Vous n'êtes pas administrateur.");
+        window.location.href = '/'; 
+    }
+
+    // 2. FONCTION DE DÉVERROUILLAGE (Mot de passe local)
+    function unlockAdmin() {
+        const pin = document.getElementById('admin-pin').value;
+        const ADMIN_PASSWORD = "*****"; // <--- Tu peux changer "*****" par le mot de passe de ton choix
+
+        if (pin === ADMIN_PASSWORD) {
+            // Fait disparaître l'écran de verrouillage
+            document.getElementById('admin-lock-screen').style.display = 'none';
+            // Affiche le panel
+            document.getElementById('main-content').style.display = 'block';
+            // Charge les produits seulement une fois déverrouillé
+            loadAdminProducts();
+        } else {
+            alert("Mot de passe incorrect !");
+            document.getElementById('admin-pin').value = ''; // Vide la case
+        }
+    }
+
+    // Permet d'appuyer sur "Entrée" pour valider le mot de passe
+    document.getElementById('admin-pin').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') unlockAdmin();
+    });
+
+    // --- LE RESTE DES FONCTIONS EST INTACT ---
+
     function updateFileName(input, displayId) {
         const display = document.getElementById(displayId);
         if (input.files && input.files.length > 0) {
             display.textContent = "Fichier sélectionné : " + input.files[0].name;
-            display.style.color = "#10b981"; // Vert pour confirmer
+            display.style.color = "#10b981"; 
         } else {
             display.textContent = "Aucun fichier sélectionné";
-            display.style.color = "#94a3b8"; // Gris par défaut
+            display.style.color = "#94a3b8"; 
         }
     }
 
-    // --- Fonction pour envoyer une notification ---
     async function sendNotif() {
         const title = document.getElementById('notif-title').value;
         const message = document.getElementById('notif-message').value;
         const btn = document.getElementById('btn-send-notif');
 
         if(!title || !message) return alert("Veuillez remplir tous les champs.");
-
         btn.classList.add('btn-loading');
 
         try {
@@ -150,16 +157,17 @@
             });
             const data = await res.json();
             alert(data.message || data.error);
+            if(data.success) {
+                document.getElementById('notif-title').value = '';
+                document.getElementById('notif-message').value = '';
+            }
         } catch (err) {
-            setTimeout(() => alert("Notification envoyée avec succès (Simulation)"), 1000);
+            alert("Erreur de connexion au serveur.");
         } finally {
             btn.classList.remove('btn-loading');
-            document.getElementById('notif-title').value = '';
-            document.getElementById('notif-message').value = '';
         }
     }
 
-    // --- Fonction pour ajouter un produit (AVEC FICHIER ZIP) ---
     async function addProduct() {
         const btn = document.getElementById('btn-add-product');
         const id = document.getElementById('new-id').value;
@@ -169,58 +177,37 @@
         const description = document.getElementById('new-desc').value;
         const fileInput = document.getElementById('new-file');
 
-        if(!id || !name || !price) {
-            return alert("L'ID, le nom et le prix sont obligatoires.");
-        }
-
-        if(fileInput.files.length === 0) {
-            return alert("Veuillez obligatoirement sélectionner un fichier ZIP pour le produit.");
-        }
+        if(!id || !name || !price) return alert("L'ID, le nom et le prix sont obligatoires.");
+        if(fileInput.files.length === 0) return alert("Veuillez obligatoirement sélectionner un fichier ZIP pour le produit.");
 
         btn.classList.add('btn-loading');
-
-        // Création du FormData pour envoyer des textes ET des fichiers
         const formData = new FormData();
-        formData.append('id', id);
-        formData.append('name', name);
-        formData.append('price', price);
-        formData.append('image_url', image_url);
-        formData.append('description', description);
-        formData.append('file', fileInput.files[0]); // Ajout du fichier
+        formData.append('id', id); formData.append('name', name); formData.append('price', price);
+        formData.append('image_url', image_url); formData.append('description', description);
+        formData.append('file', fileInput.files[0]); 
 
         try {
             const res = await fetch('/api/admin/products/add', {
                 method: 'POST',
-                // ATTENTION: Avec FormData, on ne met PAS 'Content-Type': 'application/json'
-                // Le navigateur va générer lui-même le 'multipart/form-data'
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
-            
             const data = await res.json();
             alert(data.message || data.error);
             if (data.success) {
                 loadAdminProducts(); 
                 document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = '');
-                updateFileName(fileInput, 'file-name-new'); // Reset le texte du fichier
+                updateFileName(fileInput, 'file-name-new'); 
             }
         } catch(err) {
-            console.error(err);
-            setTimeout(() => {
-                alert("Produit et Fichier uploadés avec succès (Simulation)");
-                document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => el.value = '');
-                updateFileName({files: []}, 'file-name-new'); // Simule le reset
-                loadAdminProducts();
-            }, 1000);
+            alert("Erreur lors de l'upload vers le serveur.");
         } finally {
             btn.classList.remove('btn-loading');
         }
     }
 
-    // --- Fonction pour charger la liste des produits ---
     async function loadAdminProducts() {
         const container = document.getElementById('admin-products');
-        
         container.innerHTML = `<div class="loading-container"><div class="spinner"></div><p>Chargement des produits...</p></div>`;
 
         try {
@@ -232,7 +219,6 @@
                 return;
             }
 
-            // On ajoute également l'option de changer le fichier ZIP lors d'une modification
             container.innerHTML = products.map(p => `
                 <div class="product-item">
                     <label style="color: #94a3b8; font-size: 0.8rem; font-weight: bold;">ID: ${p.id}</label>
@@ -257,7 +243,6 @@
         }
     }
 
-    // --- Fonction pour modifier un produit ---
     async function updateProduct(id) {
         const name = document.getElementById(`name-${id}`).value;
         const price = document.getElementById(`price-${id}`).value;
@@ -269,33 +254,26 @@
         btn.classList.add('btn-loading');
 
         const formData = new FormData();
-        formData.append('id', id);
-        formData.append('name', name);
-        formData.append('price', price);
-        formData.append('image_url', image_url);
-        formData.append('description', description);
-        
-        // Si l'admin a sélectionné un nouveau fichier pour ce produit, on l'ajoute
-        if(fileInput.files.length > 0) {
-            formData.append('file', fileInput.files[0]);
-        }
+        formData.append('id', id); formData.append('name', name); formData.append('price', price);
+        formData.append('image_url', image_url); formData.append('description', description);
+        if(fileInput.files.length > 0) formData.append('file', fileInput.files[0]);
 
         try {
             const res = await fetch('/api/admin/products', {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }, // Pas de 'Content-Type' avec FormData
+                headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
             const data = await res.json();
             alert(data.message || data.error);
         } catch(err) {
-            setTimeout(() => alert("Produit sauvegardé (Simulation)"), 800);
+            alert("Erreur lors de la sauvegarde.");
         } finally {
             btn.classList.remove('btn-loading');
         }
     }
 
-    window.onload = loadAdminProducts;
+    // Retiré 'window.onload = loadAdminProducts;' car on charge les données uniquement APRÈS le mot de passe !
 </script>
 </body>
 </html>
